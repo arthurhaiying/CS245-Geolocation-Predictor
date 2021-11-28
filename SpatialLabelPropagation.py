@@ -21,6 +21,7 @@ def geometric_mean(points, weighted=False, weights=None):
 
     if n_points == 1:
         return points[0]
+
     if weighted:
         # for weighted mean, duplicate points based on its weight (num of mentions)
         points2 = [] 
@@ -70,6 +71,101 @@ def geometric_median(points,weighted=False,weights=None):
 
     return p_min
 
+
+class SpatialLabelPropagator:
+    # Define different select methods
+    select_method_dict = {"GEO_MEDIAN":geometric_median, 
+                           "GEO_MEAN": geometric_mean}
+
+    def __init__(self, mention_graph, train_nodes, true_label_dict, select_method="GEO_MEDIAN", weighted=False, max_iter=1000):
+        self.mention_graph = mention_graph
+        self.nodes = mention_graph.keys()
+        self.train_nodes = train_nodes
+        #self.test_nodes = test_nodes
+        self.true_label_dict = true_label_dict 
+        self.weighted = weighted
+        self.max_iter = max_iter
+        # check argument validity
+        for node in train_nodes:
+            if node not in true_label_dict.keys():
+                raise ValueError("Node {} must have a label".format(node))
+        if select_method not in self.select_method_dict.keys():
+            raise ValueError("Select method must be GEO_MEDIAN or GEO_MEAN")
+        self.select_method = self.select_method_dict[select_method]
+
+        self.estimated_label_dict = None
+        # store estimated labels
+
+    def set_select_method(self, select_method):
+        if select_method not in self.select_method_dict.keys():
+            raise ValueError("Invalid select method")
+        self.select_method = self.select_method_dict[select_method]
+
+    def labelprop(self):
+        estimated_label_dict = {} # store estimated labels
+        estimated_label_dict.update(self.true_label_dict)
+        # initially only train nodes have labels
+        for i in range(self.max_iter):
+            print("Iter: {} labels: {}".format(i, estimated_label_dict))
+            estimated_label_dict = self.update_labels(estimated_label_dict)
+        self.estimated_label_dict = estimated_label_dict
+
+    def update_labels(self, estimated_label_dict):
+        '''  propagate labels for one step '''
+        next_estimated_label_dict = {}
+        for node in self.nodes:
+            if node in self.train_nodes:
+                # skip train nodes
+                next_estimated_label_dict[node] = self.true_label_dict[node]
+                continue
+
+            locations, weights = [], []
+            for k, w in self.mention_graph[node].items():
+                # for each neighbor k that has estimated/true label
+                if k in estimated_label_dict.keys():
+                    locations.append(estimated_label_dict[k])
+                    weights.append(w)
+            if len(locations) != 0:
+                # compute new label
+                new_label = self.select_method(locations,weighted=self.weighted,weights=weights)
+                next_estimated_label_dict[node] = new_label
+
+        return next_estimated_label_dict
+
+    def predict(self, test_nodes):
+        test_label_dict = {k:v for k,v in self.estimated_label_dict.items()  if k in test_nodes}
+        return test_label_dict
+
+##########################################################################
+# Test cases
+###########################################################################
+
+
+def test_case1(): 
+    test_mention_graph = {
+        'usr0': {'usr1': 2, 'usr2': 3},
+        'usr1': {'usr0': 2, 'usr3': 4},
+        'usr2': {'usr0': 3, 'usr3': 2, 'usr4': 1},
+        'usr3': {'usr1': 4, 'usr2': 2, 'usr4': 2},
+        'usr4': {'usr2': 1, 'usr3': 2}
+    }
+
+    location1 = (20, 50) # LA
+    location2 = (-40, -50) # SH
+    train_nodes = ['usr0', 'usr3']
+    test_nodes = ['usr1', 'usr2', 'usr4']
+    true_label_dict = {'usr0': location1, 'usr3': location2}
+    model = SpatialLabelPropagator(test_mention_graph, train_nodes, true_label_dict, weighted=False, max_iter=10)
+    model.labelprop()
+    test_labels = model.predict(test_nodes)
+    print("Test labels: {}".format(test_labels))
+    model.set_select_method("GEO_MEAN")
+    model.labelprop()
+    test_labels = model.predict(test_nodes)
+    print("test labels2: {}".format(test_labels))
+
+
+
 if __name__ == '__main__':
     p1 = (47.528139,-122.197916)
     p2 = (40.668643,-73.981635)
@@ -84,3 +180,7 @@ if __name__ == '__main__':
     print("median: {}".format(median))
     print("mean: {}".format(mean))
     print("mean2: {}".format(mean2))
+    # test cases
+    print("Start test cases...")
+    test_case1()
+    print("Finish test cases.")
