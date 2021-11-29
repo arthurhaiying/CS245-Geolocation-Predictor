@@ -54,7 +54,8 @@ def vanilla_label_propagation(Y, T, mask, max_iter):
   print("counter: ", counter)
   return Y_cur
 
-if __name__ == "__main__":
+
+def run_test_case():
     W = np.array([[1,0.5,0.5,0,0,0],
                   [0.5,1,0.5,0.4,0,0],
                   [0.5,0.5,1,0,0,0],
@@ -81,3 +82,6 @@ if __name__ == "__main__":
     
     print("results: ")
     print(vanilla_label_propagation(Y, T, mask, 1000))
+
+if __name__ == "__main__":
+    run_test_case()
