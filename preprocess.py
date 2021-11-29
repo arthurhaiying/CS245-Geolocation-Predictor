@@ -1,5 +1,5 @@
-from collections import defaultdict
-from typing import DefaultDict
+import collections
+import reverse_geocoder as rg
 import numpy as np
 import re,csv
 
@@ -115,8 +115,11 @@ def coordinates_to_cities(user_to_coordinates):
         user_to_coordinates: dict(user_id->coordiantes)
     """
     # TODO
-    user_to_city = {}
-    return user_to_city
+	user_to_city = collections.defaultdict()
+	for key, value in user_to_coordinates.items():
+		result = rg.search(value)
+		user_to_city[key] = result[0]['name']
+	return user_to_city
 
 
 def cities_to_labels(user_to_city):
