@@ -26,6 +26,7 @@ def extract_mentions(line):
 
 def read_dataset(filename, csv_filename, data_encoding="ISO-8859-1"):
 	user_to_mentions = {}
+	user_to_coordinates = {}
 	data_rows = []
 	field_names = ["user_id", "timestamp", "latitude", "longitude", "raw_text", "mentions"]
 	# read raw text files
@@ -51,6 +52,8 @@ def read_dataset(filename, csv_filename, data_encoding="ISO-8859-1"):
 				user_to_mentions[user_id] = []
 			user_to_mentions[user_id] += mentions
 			data_rows.append(row)
+			if user_id not in user_to_coordinates:
+				user_to_coordinates[user_id] = (lat, lot)
 
 	# write to csv files
 	with open(csv_filename, 'w') as csvfile:
@@ -59,7 +62,7 @@ def read_dataset(filename, csv_filename, data_encoding="ISO-8859-1"):
 		writer.writerows(data_rows)
 		csvfile.flush()
 		
-	return data_rows, user_to_mentions
+	return data_rows, user_to_mentions, user_to_coordinates
 
 '''
 def build_mention_graph(user_to_mentions):
@@ -103,12 +106,81 @@ def build_mention_graph(user_to_mentions):
 	print("    nodes: {} edges: {} mentions: {} dangles: {}".format(n_users, n_edges, n_mentions, len(dangle_users)))
 	return mention_graph
 
-		
+
+def coordinates_to_cities(user_to_coordinates):
+    """
+    Convert the coordinates to cities. Return a dict(user_id->city).
+    
+    Parameters:
+        user_to_coordinates: dict(user_id->coordiantes)
+    """
+    # TODO
+    user_to_city = {}
+    return user_to_city
+
+
+def cities_to_labels(user_to_city):
+    """
+    Convert city names to integer labels, where each city correspond to 
+    one integer. Return a dict(user_id->label) and the number of labels.
+    
+    Parameters:
+        user_to_coordinates: dict(user_id->city)
+    """
+    city_to_label = {}
+    counter = 0
+    for user in user_to_city.keys():
+        city = user_to_city[user]
+        if not city in city_to_label:
+            city_to_label[city] = counter
+            counter += 1
+        user_to_city[user] = city_to_label[city]
+    return user_to_city, counter
+        
+
+def build_label_distribution(user_to_label, num_of_labels):
+    """
+    Build the label distribution of each user.
+    
+    Parameters:
+        user_to_label: dict(user_id->label)
+        
+    Returns:
+        Y: nxc matrix of the original label distribution,
+    where n is the number of nodes, c is the number of labels.
+    """
+    Y = np.zeros((len(user_to_label), num_of_labels))
+    for i, (user, label) in enumerate(user_to_label.items()):
+        Y[i,label] = 1
+    return Y
+
+
+def build_weight_matrix(mention_graph):
+    """
+    Build the weight matrix of edges using mention graph.
+    
+    Parameters:
+        mention_graph: a dict(user -> dict(user -> number of bidirectional mentions))
+        
+    Returns:
+        W: nxn weight matrix, where W_ij measures the similarity between
+    node i and node j
+        
+    """
+    W = np.zeros((len(mention_graph), len(mention_graph)))
+    user_to_index = {}
+    for i, (user, neighbor_to_mentions) in enumerate(mention_graph.items()):
+        user_to_index[user] = i
+    for i, (user, neighbor_to_mentions) in enumerate(mention_graph.items()):
+        for neighbor in neighbor_to_mentions.keys():
+            W[i, user_to_index[neighbor]] = neighbor_to_mentions[neighbor]
+    return W
 
 
 
 if __name__ == '__main__':
-	data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
+	#data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
+	data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
 	print(data_rows[0])
 	print(user_to_mentions[data_rows[0]['user_id']])
 	mention_graph = build_mention_graph(user_to_mentions)
