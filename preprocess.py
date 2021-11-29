@@ -64,6 +64,41 @@ def read_dataset(filename, csv_filename, data_encoding="ISO-8859-1"):
 		
 	return data_rows, user_to_mentions, user_to_coordinates
 
+
+def read_dataset_without_saving(filename, csv_filename, data_encoding="ISO-8859-1"):
+	user_to_mentions = {}
+	user_to_coordinates = {}
+	data_rows = []
+	field_names = ["user_id", "timestamp", "latitude", "longitude", "raw_text", "mentions"]
+	# read raw text files
+	with open(filename, 'r', encoding=data_encoding) as f:
+		lines = f.readlines()
+		#lines = [line.encode('utf-8', errors='ignore').decode('utf-8') for line in lines]
+		#print(lines[0])
+		for line in lines:
+			fields = line.split('\t')
+			if len(fields) != 6:
+				raise RuntimeError("Num of fields do not match: ".format(fields))
+			row = {}
+			user_id, ts, lat, lot = fields[0], fields[1], fields[3], fields[4]
+			raw_text = clean_line(fields[5])
+			mentions = extract_mentions(fields[5])
+			row['user_id'] = user_id
+			row['timestamp'] = ts
+			row['latitude'] = lat
+			row['longitude'] = lot
+			row['raw_text'] = raw_text
+			row['mentions'] = mentions
+			if user_id not in user_to_mentions:
+				user_to_mentions[user_id] = []
+			user_to_mentions[user_id] += mentions
+			data_rows.append(row)
+			if user_id not in user_to_coordinates:
+				user_to_coordinates[user_id] = (lat, lot)
+		
+	return data_rows, user_to_mentions, user_to_coordinates
+
+
 '''
 def build_mention_graph(user_to_mentions):
 	mention_graph = {}
@@ -87,7 +122,7 @@ def build_mention_graph(user_to_mentions):
 	mention_graph = {}
 	for k in user_to_mentions.keys():
 		# initialize adjacency list
-		mention_graph[k] = defaultdict(int)
+		mention_graph[k] = collections.defaultdict(int)
 	print("Start building mention graph...")
 	for k, mentions in user_to_mentions.items():
 		neighbors,counts = np.unique(mentions, return_counts=True)
@@ -115,11 +150,11 @@ def coordinates_to_cities(user_to_coordinates):
         user_to_coordinates: dict(user_id->coordiantes)
     """
     # TODO
-	user_to_city = collections.defaultdict()
-	for key, value in user_to_coordinates.items():
-		result = rg.search(value)
-		user_to_city[key] = result[0]['name']
-	return user_to_city
+    user_to_city = collections.defaultdict()
+    for key, value in user_to_coordinates.items():
+        result = rg.search(value)
+        user_to_city[key] = result[0]['name']
+    return user_to_city
 
 
 def cities_to_labels(user_to_city):
@@ -183,7 +218,7 @@ def build_weight_matrix(mention_graph):
 
 if __name__ == '__main__':
 	#data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
-	data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
+	data_rows, user_to_mentions, user_to_coordinates = read_dataset_without_saving(dataset_filename, csv_filename)
 	print(data_rows[0])
 	print(user_to_mentions[data_rows[0]['user_id']])
 	mention_graph = build_mention_graph(user_to_mentions)
