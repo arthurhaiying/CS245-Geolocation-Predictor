@@ -87,7 +87,7 @@ def build_mention_graph(user_to_mentions):
 	mention_graph = {}
 	for k in user_to_mentions.keys():
 		# initialize adjacency list
-		mention_graph[k] = defaultdict(int)
+		mention_graph[k] = collections.defaultdict(int)
 	print("Start building mention graph...")
 	for k, mentions in user_to_mentions.items():
 		neighbors,counts = np.unique(mentions, return_counts=True)
@@ -108,13 +108,12 @@ def build_mention_graph(user_to_mentions):
 
 
 def coordinates_to_cities(user_to_coordinates):
-    """
-    Convert the coordinates to cities. Return a dict(user_id->city).
-    
-    Parameters:
-        user_to_coordinates: dict(user_id->coordiantes)
-    """
-    # TODO
+	"""
+	Convert the coordinates to cities. Return a dict(user_id->city).
+
+	Parameters:
+		user_to_coordinates: dict(user_id->coordiantes)
+	"""
 	user_to_city = collections.defaultdict()
 	for key, value in user_to_coordinates.items():
 		result = rg.search(value)
@@ -181,12 +180,13 @@ def build_weight_matrix(mention_graph):
 
 
 
-if __name__ == '__main__':
-	#data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
-	data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
-	print(data_rows[0])
-	print(user_to_mentions[data_rows[0]['user_id']])
-	mention_graph = build_mention_graph(user_to_mentions)
-	print(mention_graph[data_rows[0]['user_id']])
+# if __name__ == '__main__':
+#data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
+data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
+print("the first data_rows is: ", data_rows[0])
+print(user_to_mentions[data_rows[0]['user_id']])
+mention_graph = build_mention_graph(user_to_mentions)
+# print(mention_graph)
+print("the mention graph is", mention_graph[data_rows[0]['user_id']])
 
   

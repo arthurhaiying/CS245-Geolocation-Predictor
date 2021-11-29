@@ -3,6 +3,8 @@ from geopy import distance as Distance
 import numpy as np
 import random
 import math
+from preprocess import mention_graph, data_rows, user_to_coordinates
+
 
 INFINITY = np.inf
 
@@ -165,22 +167,42 @@ def test_case1():
     print("test labels2: {}".format(test_labels))
 
 
+def test_total():
+    total_length = len(data_rows)
+    train_length = int(0.8 * total_length)
+    # test_length = 0.2 * total_length
+    train_nodes = []
+    test_nodes = []
+    for i in range(train_length):
+        train_nodes.append(data_rows[i]['user_id'])
+    for i in range(train_length, total_length):
+        test_nodes.append(data_rows[i]['user_id'])
+    model = SpatialLabelPropagator(mention_graph, train_nodes, user_to_coordinates, weighted=True, max_iter=5)
+    model.labelprop()
+    test_labels = model.predict(test_nodes)
+    print("Test labels: {}".format(test_labels))
+    model.set_select_method("GEO_MEAN")
+    model.labelprop()
+    test_labels = model.predict(test_nodes)
+    print("test labels2: {}".format(test_labels))
+
+
 
 if __name__ == '__main__':
-    p1 = (47.528139,-122.197916)
-    p2 = (40.668643,-73.981635)
-    p3 = (41.876133,-87.674191)
-    d_12 = distance(p1, p2)
-    d_13 = distance(p1, p3)
-    d_23 = distance(p2, p3)
-    median = geometric_median([p1,p2,p3],weighted=True,weights=[0.6,0.2,0.2])
-    mean = geometric_mean([p1,p2,p3])
-    mean2 = geometric_mean([p1,p2,p3],weighted=True,weights=[1,2,1])
-    print("distances 12: {} 23: {}".format(d_12, d_23))
-    print("median: {}".format(median))
-    print("mean: {}".format(mean))
-    print("mean2: {}".format(mean2))
+    # p1 = (47.528139,-122.197916)
+    # p2 = (40.668643,-73.981635)
+    # p3 = (41.876133,-87.674191)
+    # d_12 = distance(p1, p2)
+    # d_13 = distance(p1, p3)
+    # d_23 = distance(p2, p3)
+    # median = geometric_median([p1,p2,p3],weighted=True,weights=[0.6,0.2,0.2])
+    # mean = geometric_mean([p1,p2,p3])
+    # mean2 = geometric_mean([p1,p2,p3],weighted=True,weights=[1,2,1])
+    # print("distances 12: {} 23: {}".format(d_12, d_23))
+    # print("median: {}".format(median))
+    # print("mean: {}".format(mean))
+    # print("mean2: {}".format(mean2))
     # test cases
     print("Start test cases...")
-    test_case1()
+    test_total()
     print("Finish test cases.")
