@@ -24,6 +24,7 @@ def extract_mentions(line):
 			mentions.append(w)
 	return mentions
 
+
 def read_dataset(filename, csv_filename, data_encoding="ISO-8859-1"):
 	user_to_mentions = {}
 	user_to_coordinates = {}
@@ -166,7 +167,7 @@ def cities_to_labels(user_to_city):
 	counter = 0
 	for user in user_to_city.keys ():
 		city = user_to_city[user]
-		if not city in city_to_label:
+		if city not in city_to_label:
 			city_to_label[city] = counter
 			counter += 1
 		user_to_city[user] = city_to_label[city]
@@ -184,8 +185,8 @@ def build_label_distribution(user_to_label, num_of_labels):
 		Y: nxc matrix of the original label distribution,
 		where n is the number of nodes, c is the number of labels.
 	"""
-	Y = np.zeros ( (len ( user_to_label ), num_of_labels) )
-	for i, (user, label) in enumerate ( user_to_label.items () ):
+	Y = np.zeros((len(user_to_label), num_of_labels))
+	for i, (user, label) in enumerate(user_to_label.items()):
 		Y[i, label] = 1
 	return Y
 
