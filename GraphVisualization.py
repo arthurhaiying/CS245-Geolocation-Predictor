@@ -85,7 +85,9 @@ plt.bar(X, Y1, width = 0.3, facecolor = 'royalblue', label='median', lw=1)
 plt.bar(X+0.3, Y2, width = 0.3, facecolor = 'cornflowerblue', label='mean', lw=1)
 plt.legend(loc="upper left")
 plt.xticks(X+0.15, ['Distance Difference', 'MSE(2D)', 'MSE(3D)'])
-
+plt.xlabel("Methods")
+plt.ylabel("Accuracy Percentage")
+plt.title("Accuracy with 8:2 train/ test ratio and 5 iterations")
 # names = ['distance_diff', 'mse_2d', 'mse_3d']
 # values = [mean_absolute, median_absolute, mean_mse_2d, median_mse_2d, mean_mse_3d, median_mse_3d]
 
