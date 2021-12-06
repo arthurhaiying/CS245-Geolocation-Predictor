@@ -9,6 +9,7 @@ from preprocess import mention_graph, data_rows, user_to_coordinates
 
 
 INFINITY = np.inf
+TRAINNING_SIZE = 0.7
 
 def distance(p1, p2):
     # compute great circle distance between two coordinates
@@ -164,7 +165,7 @@ def test_case1():
     # test_labels = model.predict(test_nodes)
 
     total_length = len(data_rows)
-    train_length = int(0.8 * total_length)
+    train_length = int(TRAINNING_SIZE * total_length)
     # test_length = 0.2 * total_length
     train_nodes = []
     test_nodes = []
@@ -179,7 +180,10 @@ def test_case1():
     test_labels = model.predict(test_nodes)
 
     # print("Test labels: {}".format(test_labels))
-    with open('slpmedian.txt', 'w') as outfile:
+    # with open('slpmedian.txt', 'w') as outfile:
+    #     json.dump(test_labels, outfile)
+
+    with open('slpmedian73.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
 
     # model = SpatialLabelPropagator(test_mention_graph, train_nodes, true_label_dict, "GEO_MEAN", weighted=False, max_iter=10)
@@ -190,7 +194,10 @@ def test_case1():
     model.labelprop()
     test_labels = model.predict(test_nodes)
     # print("test labels2: {}".format(test_labels))
-    with open('slpmean.txt', 'w') as outfile:
+    # with open('slpmean.txt', 'w') as outfile:
+    #     json.dump(test_labels, outfile)
+
+    with open('slpmean73.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
 
 
