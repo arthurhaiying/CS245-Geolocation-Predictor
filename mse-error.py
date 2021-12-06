@@ -64,10 +64,10 @@ def mse(text):
 
 
 if __name__ == '__main__':
-    # mean_absolute = absolute("slpmean.txt")
-    # median_absolute = absolute("slpmedian.txt")
-    # print("mean absolute:", mean_absolute)
-    # print("median absolute", median_absolute)
+    mean_absolute = absolute("slpmean.txt")
+    median_absolute = absolute("slpmedian.txt")
+    print("mean absolute:", mean_absolute)
+    print("median absolute", median_absolute)
 
     mean_mse = mse("slpmean.txt")
     median_mse = mse("slpmedian.txt")
