@@ -9,7 +9,7 @@ from preprocess import mention_graph, data_rows, user_to_coordinates
 
 
 INFINITY = np.inf
-TRAINNING_SIZE = 0.7
+TRAINNING_SIZE = 0.9
 
 def distance(p1, p2):
     # compute great circle distance between two coordinates
@@ -208,7 +208,7 @@ def test_case1():
 
 def test_median():
     total_length = len(data_rows)
-    train_length = int(0.8 * total_length)
+    train_length = int(TRAINNING_SIZE * total_length)
     # test_length = 0.2 * total_length
     train_nodes = []
     test_nodes = []
@@ -236,7 +236,7 @@ def test_median():
 
 def test_mean():
     total_length = len ( data_rows )
-    train_length = int ( 0.8 * total_length )
+    train_length = int ( TRAINNING_SIZE * total_length )
     # test_length = 0.2 * total_length
     train_nodes = []
     test_nodes = []
