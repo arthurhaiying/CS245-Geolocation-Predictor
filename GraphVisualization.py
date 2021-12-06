@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Nov 28 15:29:45 2021
-
-@author: luche
 """
 #%%
 import networkx as nx
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import data
 from preprocess import mention_graph, data_rows
+from accuracy import mean_absolute, median_absolute, mean_mse_2d, median_mse_2d, mean_mse_3d, median_mse_3d
 import pandas as pd
 import random
 import warnings
@@ -71,5 +71,26 @@ colors = nx.get_edge_attributes(G,'color').values()
 pos = nx.spring_layout(G, k=0.05, iterations=20)
 nx.draw_networkx(G, pos, with_labels=False, edge_color=colors, node_size=3, width = 0.5)
 plt.savefig("8mentions.png", dpi=1000)
+plt.show()
+
+
+# %%
+n = 3
+# X = ['distance_diff', 'mse_2d', 'mse_3d']
+X = np.arange(n)+1
+plt.figure(figsize=(9,6))
+Y1 = [0.74, 0.826, 0.817]
+Y2 = [0.4098, 0.596, 0.5517]
+plt.bar(X, Y1, width = 0.3, facecolor = 'royalblue', label='median', lw=1)
+plt.bar(X+0.3, Y2, width = 0.3, facecolor = 'cornflowerblue', label='mean', lw=1)
+plt.legend(loc="upper left")
+plt.xticks(X+0.15, ['Distance Difference', 'MSE(2D)', 'MSE(3D)'])
+
+# names = ['distance_diff', 'mse_2d', 'mse_3d']
+# values = [mean_absolute, median_absolute, mean_mse_2d, median_mse_2d, mean_mse_3d, median_mse_3d]
+
+# plt.bar(names, values)
+# plt.suptitle('Accuracy')
+plt.savefig("80per_5iter.png", dpi=1000)
 plt.show()
 # %%
