@@ -5,7 +5,8 @@ from preprocess import user_to_coordinates
 from SpatialLabelPropagation import distance
 
 abs_threshold = 1
-mse_threshold = 1
+mse2threshold = 1
+mse3threshold = 0.01
 
 def readFile(text):
     """
@@ -57,7 +58,7 @@ def absolute(text):
 
 
 # mse
-def mse(text, dim=3):
+def mse(text, dim):
     """
     Calculate the mse error
 
@@ -74,12 +75,14 @@ def mse(text, dim=3):
         pred_lat, pred_lot = location
         if dim == 2:
             error = math.sqrt((float(true_lat) - float(pred_lat)) ** 2 + (float(true_lot) - float(pred_lot)) ** 2)
+            threshold = mse2threshold
         else:
-            true_x, true_y, true_z = coord(true_lat, true_lot)
-            pred_x, pred_y, pred_z = coord(pred_lat, pred_lot)
-            error = math.sqrt((float(true_x) - float(pred_x)) ** 2 + (float (true_y) - float(pred_y)) ** 2 + (float(true_z) - float(pred_z)) ** 2)
+            true_x, true_y, true_z = coord(float(true_lat), float(true_lot))
+            pred_x, pred_y, pred_z = coord(float(pred_lat), float(pred_lot))
+            error = math.sqrt((float(true_x) - float(pred_x)) ** 2 + (float(true_y) - float(pred_y)) ** 2 + (float(true_z) - float(pred_z)) ** 2)
+            threshold = mse3threshold
 
-        if error <= mse_threshold:
+        if error <= threshold:
             correct += 1
         errors.append(error)
 
@@ -97,11 +100,11 @@ if __name__ == '__main__':
     # mse 2D
     mean_mse = mse("slpmean.txt", 2)
     median_mse = mse("slpmedian.txt", 2)
-    print("mean mse:", mean_mse)
-    print("median mse", median_mse)
+    print("mean mse 2D:", mean_mse)
+    print("median mse 2D:", median_mse)
 
     # mse 3D
-    mean_mse = mse("slpmean.txt")
-    median_mse = mse("slpmedian.txt")
-    print("mean mse:", mean_mse)
-    print("median mse", median_mse)
+    mean_mse = mse("slpmean.txt", 3)
+    median_mse = mse("slpmedian.txt", 3)
+    print("mean mse 3D:", mean_mse)
+    print("median mse 3D:", median_mse)
