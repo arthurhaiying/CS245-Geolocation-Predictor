@@ -175,7 +175,7 @@ def test_case1():
         test_nodes.append(data_rows[i]['user_id'])
 
 
-    model = SpatialLabelPropagator(mention_graph, train_nodes, user_to_coordinates, "GEO_MEDIAN", weighted=True, max_iter=10)
+    model = SpatialLabelPropagator(mention_graph, train_nodes, user_to_coordinates, "GEO_MEDIAN", weighted=True, max_iter=8)
     model.labelprop()
     test_labels = model.predict(test_nodes)
 
@@ -187,7 +187,9 @@ def test_case1():
     #     json.dump(test_labels, outfile)
     # with open('slpmedian91.txt', 'w') as outfile:
     #     json.dump(test_labels, outfile)
-    with open('slpmedian10iter.txt', 'w') as outfile:
+    # with open('slpmedian10iter.txt', 'w') as outfile:
+    #     json.dump(test_labels, outfile)
+    with open('slpmedian8iter.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
 
 
@@ -195,7 +197,7 @@ def test_case1():
     # model.labelprop()
     # test_labels = model.predict(test_nodes)
 
-    model = SpatialLabelPropagator(mention_graph, train_nodes, user_to_coordinates, "GEO_MEAN", weighted=True, max_iter=10)
+    model = SpatialLabelPropagator(mention_graph, train_nodes, user_to_coordinates, "GEO_MEAN", weighted=True, max_iter=8)
     model.labelprop()
     test_labels = model.predict(test_nodes)
     # print("test labels2: {}".format(test_labels))
@@ -206,7 +208,9 @@ def test_case1():
     #     json.dump(test_labels, outfile)
     # with open('slpmean91.txt', 'w') as outfile:
     #     json.dump(test_labels, outfile)
-    with open('slpmean10iter.txt', 'w') as outfile:
+    # with open('slpmean10iter.txt', 'w') as outfile:
+    #     json.dump(test_labels, outfile)
+    with open('slpmean8iter.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
 
 
