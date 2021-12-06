@@ -260,11 +260,11 @@ def displace_user_information(idx, idx_to_user, mention_graph, user_to_label, W,
         print(idx_to_user[neighbor_idx], " ", W[idx, neighbor_idx], np.argmax(Y_pred[neighbor_idx]))
 
 
-if __name__ == '__main__':
-    #data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
-    data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
-    print("the first data_rows is: ", data_rows[0])
-    print(user_to_mentions[data_rows[0]['user_id']])
-    mention_graph = build_mention_graph(user_to_mentions)
-    # print(mention_graph)
-    print("the mention graph is", mention_graph[data_rows[0]['user_id']])
+# if __name__ == '__main__':
+#data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
+data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
+print("the first data_rows is: ", data_rows[0])
+print(user_to_mentions[data_rows[0]['user_id']])
+mention_graph = build_mention_graph(user_to_mentions)
+# print(mention_graph)
+print("the mention graph is", mention_graph[data_rows[0]['user_id']])
