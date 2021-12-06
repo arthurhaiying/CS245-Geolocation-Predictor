@@ -81,7 +81,7 @@ class SpatialLabelPropagator:
     select_method_dict = {"GEO_MEDIAN":geometric_median, 
                            "GEO_MEAN": geometric_mean}
 
-    def __init__(self, mention_graph, train_nodes, true_label_dict, select_method="GEO_MEDIAN", weighted=False, max_iter=1000):
+    def __init__(self, mention_graph, train_nodes, true_label_dict, select_method, weighted=False, max_iter=1000):
         self.mention_graph = mention_graph
         self.nodes = mention_graph.keys()
         self.train_nodes = train_nodes
@@ -145,31 +145,31 @@ class SpatialLabelPropagator:
 ###########################################################################
 
 
-def test_case1(): 
-    test_mention_graph = {
-        'usr0': {'usr1': 2, 'usr2': 3},
-        'usr1': {'usr0': 2, 'usr3': 4},
-        'usr2': {'usr0': 3, 'usr3': 2, 'usr4': 1},
-        'usr3': {'usr1': 4, 'usr2': 2, 'usr4': 2},
-        'usr4': {'usr2': 1, 'usr3': 2}
-    }
+# def test_case1():
+#     test_mention_graph = {
+#         'usr0': {'usr1': 2, 'usr2': 3},
+#         'usr1': {'usr0': 2, 'usr3': 4},
+#         'usr2': {'usr0': 3, 'usr3': 2, 'usr4': 1},
+#         'usr3': {'usr1': 4, 'usr2': 2, 'usr4': 2},
+#         'usr4': {'usr2': 1, 'usr3': 2}
+#     }
+#
+#     location1 = (20, 50) # LA
+#     location2 = (-40, -50) # SH
+#     train_nodes = ['usr0', 'usr3']
+#     test_nodes = ['usr1', 'usr2', 'usr4']
+#     true_label_dict = {'usr0': location1, 'usr3': location2}
+#     model = SpatialLabelPropagator(test_mention_graph, train_nodes, true_label_dict, "GEO_MEDIAN", weighted=False, max_iter=10)
+#     model.labelprop()
+#     test_labels = model.predict(test_nodes)
+#     print("Test labels: {}".format(test_labels))
+#     model.set_select_method("GEO_MEAN")
+#     model.labelprop()
+#     test_labels = model.predict(test_nodes)
+#     print("test labels2: {}".format(test_labels))
 
-    location1 = (20, 50) # LA
-    location2 = (-40, -50) # SH
-    train_nodes = ['usr0', 'usr3']
-    test_nodes = ['usr1', 'usr2', 'usr4']
-    true_label_dict = {'usr0': location1, 'usr3': location2}
-    model = SpatialLabelPropagator(test_mention_graph, train_nodes, true_label_dict, weighted=False, max_iter=10)
-    model.labelprop()
-    test_labels = model.predict(test_nodes)
-    print("Test labels: {}".format(test_labels))
-    model.set_select_method("GEO_MEAN")
-    model.labelprop()
-    test_labels = model.predict(test_nodes)
-    print("test labels2: {}".format(test_labels))
 
-
-def test_total():
+def test_median():
     total_length = len(data_rows)
     train_length = int(0.8 * total_length)
     # test_length = 0.2 * total_length
@@ -179,19 +179,35 @@ def test_total():
         train_nodes.append(data_rows[i]['user_id'])
     for i in range(train_length, total_length):
         test_nodes.append(data_rows[i]['user_id'])
-    model = SpatialLabelPropagator(mention_graph, train_nodes, user_to_coordinates, weighted=True, max_iter=5)
+    model = SpatialLabelPropagator(mention_graph, train_nodes, user_to_coordinates, "GEO_MEDIAN", weighted=True, max_iter=5)
     model.labelprop()
     test_labels = model.predict(test_nodes)
     # print("Test labels: {}".format(test_labels))
     with open('slpmedian.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
-    model.set_select_method("GEO_MEAN")
-    model.labelprop()
-    test_labels = model.predict(test_nodes)
-    # print("test labels2: {}".format(test_labels))
-    with open('slpmean.txt', 'w') as outfile:
-        json.dump(test_labels, outfile)
+    # model.set_select_method("GEO_MEAN")
+    # model.labelprop()
+    # test_labels = model.predict(test_nodes)
+    # # print("test labels2: {}".format(test_labels))
+    # with open('slpmean.txt', 'w') as outfile:
+    #     json.dump(test_labels, outfile)
 
+def test_mean():
+    total_length = len ( data_rows )
+    train_length = int ( 0.8 * total_length )
+    # test_length = 0.2 * total_length
+    train_nodes = []
+    test_nodes = []
+    for i in range ( train_length ):
+        train_nodes.append ( data_rows[i]['user_id'] )
+    for i in range ( train_length, total_length ):
+        test_nodes.append ( data_rows[i]['user_id'] )
+    model = SpatialLabelPropagator ( mention_graph, train_nodes, user_to_coordinates, "GEO_MEAN", weighted=True, max_iter=5 )
+    model.labelprop ()
+    test_labels = model.predict ( test_nodes )
+    # print("test labels2: {}".format(test_labels))
+    with open ( 'slpmean.txt', 'w' ) as outfile:
+        json.dump ( test_labels, outfile )
 
 
 if __name__ == '__main__':
@@ -210,5 +226,9 @@ if __name__ == '__main__':
     # print("mean2: {}".format(mean2))
     # test cases
     print("Start test cases...")
-    test_total()
+    test_median()
     print("Finish test cases.")
+
+    print ( "Start test cases..." )
+    test_mean()
+    print ( "Finish test cases." )
