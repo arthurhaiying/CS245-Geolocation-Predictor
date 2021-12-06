@@ -1,5 +1,7 @@
 from collections.abc import Sequence
 from geopy import distance as Distance
+import pandas as pd
+import json
 import numpy as np
 import random
 import math
@@ -18,8 +20,8 @@ def geometric_mean(points, weighted=False, weights=None):
     if weighted:
         if len(weights) != n_points:
             raise ValueError("Weights must have same size as points")
-        if not all(isinstance(w, int) for w in weights):
-            raise ValueError("for mean of points, weight must be the number of mentions")
+        # if not all(isinstance(w, int) for w in weights):
+        #     raise ValueError("for mean of points, weight must be the number of mentions")
 
     if n_points == 1:
         return points[0]
@@ -28,12 +30,12 @@ def geometric_mean(points, weighted=False, weights=None):
         # for weighted mean, duplicate points based on its weight (num of mentions)
         points2 = [] 
         for w,p in zip(weights, points):
-            points2 += [p]*w
+            points2 += [p]*int(w)
         points = points2
 
     x, y, z = 0.0, 0.0, 0.0 # mean on 2D plane
     for p in points:
-        lat, lot = p[0], p[1]
+        lat, lot = float(p[0]), float(p[1])
         lat, lot = math.radians(lat), math.radians(lot)
         x += math.cos(lat) * math.cos(lot)
         y += math.cos(lat) * math.sin(lot)
@@ -66,7 +68,7 @@ def geometric_median(points,weighted=False,weights=None):
         if not weighted:
             dist_sum = sum(distance(p,p2) for p2 in points)
         else:
-            dist_sum = sum(w*distance(p,p2) for w,p2 in zip(weights,points))
+            dist_sum = sum(int(w)*distance(p,p2) for w,p2 in zip(weights,points))
         if dist_sum < dist_sum_min:
             dist_sum_min = dist_sum
             p_min = p
@@ -126,7 +128,7 @@ class SpatialLabelPropagator:
                 # for each neighbor k that has estimated/true label
                 if k in estimated_label_dict.keys():
                     locations.append(estimated_label_dict[k])
-                    weights.append(w)
+                    weights.append(int(w))
             if len(locations) != 0:
                 # compute new label
                 new_label = self.select_method(locations,weighted=self.weighted,weights=weights)
@@ -180,11 +182,15 @@ def test_total():
     model = SpatialLabelPropagator(mention_graph, train_nodes, user_to_coordinates, weighted=True, max_iter=5)
     model.labelprop()
     test_labels = model.predict(test_nodes)
-    print("Test labels: {}".format(test_labels))
+    # print("Test labels: {}".format(test_labels))
+    with open('slpmedian.txt', 'w') as outfile:
+        json.dump(test_labels, outfile)
     model.set_select_method("GEO_MEAN")
     model.labelprop()
     test_labels = model.predict(test_nodes)
-    print("test labels2: {}".format(test_labels))
+    # print("test labels2: {}".format(test_labels))
+    with open('slpmean.txt', 'w') as outfile:
+        json.dump(test_labels, outfile)
 
 
 
