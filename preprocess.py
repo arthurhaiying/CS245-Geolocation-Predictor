@@ -99,17 +99,19 @@ def read_dataset_without_saving(filename, csv_filename, data_encoding="ISO-8859-
 		
 	return data_rows, user_to_mentions, user_to_coordinates
 
-# def build_mention_graph(user_to_mentions):
-# 	mention_graph = {}
-# 	for k, v in user_to_mentions.items():
-# 		mention_graph[k] = []
-# 		potential_neighbors = set(v)
-# 		for potential_neighbor in potential_neighbors:
-# 			if potential_neighbor in user_to_mentions.keys() and k in user_to_mentions[potential_neighbor]:
-# 				mention_graph[k].append((potential_neighbor, v.count(potential_neighbor)
-# 				+ user_to_mentions[potential_neighbor].count(k)))
-# 	return mention_graph
 
+'''
+def build_mention_graph(user_to_mentions):
+	mention_graph = {}
+	for k, v in user_to_mentions.items():
+		mention_graph[k] = []
+		potential_neighbors = set(v)
+		for potential_neighbor in potential_neighbors:
+			if potential_neighbor in user_to_mentions.keys() and k in user_to_mentions[potential_neighbor]:
+				mention_graph[k].append((potential_neighbor, v.count(potential_neighbor) + user_to_mentions[potential_neighbor].count(k)))
+
+	return mention_graph
+'''
 
 # build bidirectional mention_graph from mention records
 # return:
@@ -142,81 +144,127 @@ def build_mention_graph(user_to_mentions):
 
 
 def coordinates_to_cities(user_to_coordinates):
-	"""
-	Convert the coordinates to cities. Return a dict(user_id->city).
-
-	Parameters:
-		user_to_coordinates: dict(user_id->coordiantes)
-	"""
-	user_to_city = collections.defaultdict()
-	for key, value in user_to_coordinates.items():
-		result = rg.search(value)
-		user_to_city[key] = result[0]['name']
-	return user_to_city
+    """
+    Convert the coordinates to cities. Return a dict(user_id->city).
+    
+    Parameters:
+        user_to_coordinates: dict(user_id->coordiantes)
+    """
+    # TODO
+    counter = 0
+    user_to_city = collections.defaultdict()
+    for key, value in user_to_coordinates.items():
+        result = rg.search(value)
+        user_to_city[key] = result[0]['name']
+        print("processing #", counter)
+        counter += 1
+    return user_to_city
 
 
 def cities_to_labels(user_to_city):
-	"""
-	Convert city names to integer labels, where each city correspond to
-	one integer. Return a dict(user_id->label) and the number of labels.
-
-	Parameters:
-		user_to_city: dict(user_id->city)
-	"""
-	city_to_label = {}
-	counter = 0
-	for user in user_to_city.keys ():
-		city = user_to_city[user]
-		if city not in city_to_label:
-			city_to_label[city] = counter
-			counter += 1
-		user_to_city[user] = city_to_label[city]
-	return user_to_city, counter
-
+    """
+    Convert city names to integer labels, where each city correspond to 
+    one integer. Return a dict(user_id->label) and the number of labels.
+    
+    Parameters:
+        user_to_coordinates: dict(user_id->city)
+    """
+    city_to_label = {}
+    counter = 0
+    user_to_label = {}
+    for user in user_to_city.keys():
+        city = user_to_city[user]
+        if not city in city_to_label:
+            city_to_label[city] = counter
+            counter += 1
+        user_to_label[user] = city_to_label[city]
+    return user_to_label, counter
+        
 
 def build_label_distribution(user_to_label, num_of_labels):
-	"""
-	Build the label distribution of each user.
-
-	Parameters:
-		user_to_label: dict(user_id->label)
-
-	Returns:
-		Y: nxc matrix of the original label distribution,
-		where n is the number of nodes, c is the number of labels.
-	"""
-	Y = np.zeros((len(user_to_label), num_of_labels))
-	for i, (user, label) in enumerate(user_to_label.items()):
-		Y[i, label] = 1
-	return Y
+    """
+    Build the label distribution of each user.
+    
+    Parameters:
+        user_to_label: dict(user_id->label)
+        
+    Returns:
+        Y: nxc matrix of the original label distribution,
+    where n is the number of nodes, c is the number of labels.
+    """
+    Y = np.zeros((len(user_to_label), num_of_labels))
+    for i, (user, label) in enumerate(user_to_label.items()):
+        Y[i,label] = 1
+    return Y
 
 
 def build_weight_matrix(mention_graph):
-	"""
-	Build the weight matrix of edges using mention graph.
+    """
+    Build the weight matrix of edges using mention graph.
+    
+    Parameters:
+        mention_graph: a dict(user -> dict(user -> number of bidirectional mentions))
+        
+    Returns:
+        W: nxn weight matrix, where W_ij measures the similarity between
+    node i and node j
+        
+    """
+    W = np.zeros((len(mention_graph), len(mention_graph)))
+    user_to_index = {}
+    for i, (user, neighbor_to_mentions) in enumerate(mention_graph.items()):
+        user_to_index[user] = i
+    for i, (user, neighbor_to_mentions) in enumerate(mention_graph.items()):
+        for neighbor in neighbor_to_mentions.keys():
+            W[i, user_to_index[neighbor]] = neighbor_to_mentions[neighbor]
+       
+    # fill diagonal with the heighest weight + 1
+    #np.fill_diagonal(W, np.max(W)+1)
+    # fill diagonal with the heighest weight of the row + 1
+    #for i in range(W.shape[0]):
+    #    W[i,i] = np.max(W[i]+1)
+    # make everything less than 1, then fill diagonal with 1
+    #W = W/(np.max(W)+1)
+    #np.fill_diagonal(W, 1)
+    
+    return W
 
-	Parameters:
-		mention_graph: a dict(user -> dict(user -> number of bidirectional mentions))
 
-	Returns:
-		W: nxn weight matrix, where W_ij measures the similarity between
-		node i and node j
-	"""
-	W = np.zeros((len(mention_graph), len(mention_graph)))
-	user_to_index = {}
-	for i, (user, neighbor_to_mentions) in enumerate(mention_graph.items()):
-		user_to_index[user] = i
-	for i, (user, neighbor_to_mentions) in enumerate(mention_graph.items()):
-		for neighbor in neighbor_to_mentions.keys ():
-			W[i, user_to_index[neighbor]] = neighbor_to_mentions[neighbor]
-	return W
+def test_build_label_distribution():
+    
+    user_to_coordinates = {"user_beijing":(39.9042, 116.4074), "user_la":(34.0522, -118.2437), "user2_Beijing": (39.9041, 116.4075)}
+    user_to_city = coordinates_to_cities(user_to_coordinates)
+    
+    print(user_to_city)
+    
+    user_to_label, counter = cities_to_labels(user_to_city)
+    
+    print(user_to_label, counter)
+    
+    Y = build_label_distribution(user_to_label, counter)
+    
+    print(Y)
+    
+    
+def displace_user_information(idx, idx_to_user, mention_graph, user_to_label, W, Y_pred):
+    user = idx_to_user[idx]
+    print(user, "'s label: ", user_to_label[user])
+    print("data from original graph:")
+    print(user, "'s neighbors:")
+    for i, (neighbor, num_mentions) in enumerate(mention_graph[user].items()):
+        print(neighbor, " ", num_mentions, user_to_label[neighbor])
+    print("data from matrix representation:")
+    nonzero_indices = np.nonzero(W[idx])[0]
+    print(user, "'s neighbors:")
+    for neighbor_idx in nonzero_indices:
+        print(idx_to_user[neighbor_idx], " ", W[idx, neighbor_idx], np.argmax(Y_pred[neighbor_idx]))
 
 
-# if __name__ == '__main__':
-#data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
-data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
-print("the first data_rows is: ", data_rows[0])
-print(user_to_mentions[data_rows[0]['user_id']])
-mention_graph = build_mention_graph(user_to_mentions)
-# print(mention_graph)
-print("the mention graph is", mention_graph[data_rows[0]['user_id']])
+if __name__ == '__main__':
+    #data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
+    data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
+    print("the first data_rows is: ", data_rows[0])
+    print(user_to_mentions[data_rows[0]['user_id']])
+    mention_graph = build_mention_graph(user_to_mentions)
+    # print(mention_graph)
+    print("the mention graph is", mention_graph[data_rows[0]['user_id']])
