@@ -29,7 +29,7 @@ def geometric_mean(points, weighted=False, weights=None):
 
     if weighted:
         # for weighted mean, duplicate points based on its weight (num of mentions)
-        points2 = [] 
+        points2 = []
         for w,p in zip(weights, points):
             points2 += [p]*int(w)
         points = points2
@@ -53,14 +53,14 @@ def geometric_mean(points, weighted=False, weights=None):
     center_lat = math.atan2(z, center_square_root)
     center_point = math.degrees(center_lat), math.degrees(center_lot)
     return center_point
-    
+
 
 def geometric_median(points,weighted=False,weights=None):
     n_points = len(points)
     if weighted and len(weights) != n_points:
         raise ValueError("Weights must have same size as points")
 
-    if n_points == 1: 
+    if n_points == 1:
         return points[0]
     # select one point with minimum total (weighted) distance to all points
     p_min = None
@@ -79,7 +79,7 @@ def geometric_median(points,weighted=False,weights=None):
 
 class SpatialLabelPropagator:
     # Define different select methods
-    select_method_dict = {"GEO_MEDIAN":geometric_median, 
+    select_method_dict = {"GEO_MEDIAN":geometric_median,
                            "GEO_MEAN": geometric_mean}
 
     def __init__(self, mention_graph, train_nodes, true_label_dict, select_method, weighted=False, max_iter=1000):
@@ -87,7 +87,7 @@ class SpatialLabelPropagator:
         self.nodes = mention_graph.keys()
         self.train_nodes = train_nodes
         #self.test_nodes = test_nodes
-        self.true_label_dict = true_label_dict 
+        self.true_label_dict = true_label_dict
         self.weighted = weighted
         self.max_iter = max_iter
         # check argument validity
@@ -183,8 +183,11 @@ def test_case1():
     # with open('slpmedian.txt', 'w') as outfile:
     #     json.dump(test_labels, outfile)
 
-    with open('slpmedian73.txt', 'w') as outfile:
+    # with open('slpmedian73.txt', 'w') as outfile:
+    #     json.dump(test_labels, outfile)
+    with open('slpmedian91.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
+
 
     # model = SpatialLabelPropagator(test_mention_graph, train_nodes, true_label_dict, "GEO_MEAN", weighted=False, max_iter=10)
     # model.labelprop()
@@ -197,7 +200,9 @@ def test_case1():
     # with open('slpmean.txt', 'w') as outfile:
     #     json.dump(test_labels, outfile)
 
-    with open('slpmean73.txt', 'w') as outfile:
+    # with open('slpmean73.txt', 'w') as outfile:
+    #     json.dump(test_labels, outfile)
+    with open('slpmean91.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
 
 
