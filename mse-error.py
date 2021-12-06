@@ -4,17 +4,17 @@ from geopy import distance as Distance
 from preprocess import user_to_coordinates
 from SpatialLabelPropagation import distance
 
-abs_threshold = 1
+abs_threshold = 15
 mse2threshold = 1
 mse3threshold = 0.01
 
 def readFile(text):
     """
-
+    Read file
     :param text: json / txt file
     :return: diectionary data read from file
     """
-    f = open('slpmean.txt')
+    f = open(text)
     data = json.load(f)
     f.close()
     return data
@@ -32,7 +32,7 @@ def coord(lat, lot):
     y = math.cos(lat) * math.sin(lot)
     z = math.sin(lat)
     return x, y, z
-
+    
 
 # absolute distance
 def absolute(text):
@@ -61,7 +61,6 @@ def absolute(text):
 def mse(text, dim):
     """
     Calculate the mse error
-
     dim can be 2 / 3
 
     :return: list of mse errors
