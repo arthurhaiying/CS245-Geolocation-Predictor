@@ -12,22 +12,11 @@ import random
 
 def test_vanilla_on_dataset():
     data_rows, user_to_mentions, user_to_coordinates = read_dataset_without_saving(dataset_filename, csv_filename)
-    #print(data_rows[0])
-    #print(user_to_mentions[data_rows[0]['user_id']])
     mention_graph = build_mention_graph(user_to_mentions)
-    print(mention_graph[data_rows[0]['user_id']])
-    for i, (user, neighbor_to_mentions) in enumerate(mention_graph.items()):
-        if i == 0:
-            print(user)
-            print(neighbor_to_mentions)
-            break
         
     idx_to_user = {}
     for i, (k, v) in enumerate(user_to_coordinates.items()):
         idx_to_user[i] = k
-    
-    
-    #print(len(user_to_coordinates))
     
     #print("computing coordinates_to_cities")
     #user_to_city = coordinates_to_cities(user_to_coordinates)
@@ -42,11 +31,8 @@ def test_vanilla_on_dataset():
     print("load user_to_city")
     with open("user_to_city.pkl", "rb") as pkl_handle:
         user_to_city = pickle.load(pkl_handle)
-    print(len(user_to_city))
     
     user_to_label, counter = cities_to_labels(user_to_city)
-    
-    print(len(user_to_label), counter)
     
     Y = build_label_distribution(user_to_label, counter)
     
@@ -76,26 +62,13 @@ def test_vanilla_on_dataset():
         
     print("mask: ", mask.shape)
     
-    
-    #for i in range(4000):
-    #    mask[i,i] = 0
-    
-    print(np.sum(mask))
-    
     ground_truth = Y
     
     # only keep part of the ground truth label
     Y = Y - np.matmul(mask, Y)
     
-    #print(np.sum(Y))
-    
     for idx in masked_out:
         Y[idx] = 1/num_labels
-    
-    #for i in range(4000, 9475):
-    #    Y[i] = 1/2419
-        
-    print("sanity check, should be around 9475: ", np.sum(Y))
     
     # vanilla label propagation
     print("vanilla label propagation")

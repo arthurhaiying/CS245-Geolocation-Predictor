@@ -150,7 +150,6 @@ def coordinates_to_cities(user_to_coordinates):
     Parameters:
         user_to_coordinates: dict(user_id->coordiantes)
     """
-    # TODO
     counter = 0
     user_to_city = collections.defaultdict()
     for key, value in user_to_coordinates.items():
@@ -217,15 +216,6 @@ def build_weight_matrix(mention_graph):
     for i, (user, neighbor_to_mentions) in enumerate(mention_graph.items()):
         for neighbor in neighbor_to_mentions.keys():
             W[i, user_to_index[neighbor]] = neighbor_to_mentions[neighbor]
-       
-    # fill diagonal with the heighest weight + 1
-    #np.fill_diagonal(W, np.max(W)+1)
-    # fill diagonal with the heighest weight of the row + 1
-    #for i in range(W.shape[0]):
-    #    W[i,i] = np.max(W[i]+1)
-    # make everything less than 1, then fill diagonal with 1
-    #W = W/(np.max(W)+1)
-    #np.fill_diagonal(W, 1)
     
     return W
 
@@ -260,11 +250,11 @@ def displace_user_information(idx, idx_to_user, mention_graph, user_to_label, W,
         print(idx_to_user[neighbor_idx], " ", W[idx, neighbor_idx], np.argmax(Y_pred[neighbor_idx]))
 
 
-# if __name__ == '__main__':
-#data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
-data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
-print("the first data_rows is: ", data_rows[0])
-print(user_to_mentions[data_rows[0]['user_id']])
-mention_graph = build_mention_graph(user_to_mentions)
-# print(mention_graph)
-print("the mention graph is", mention_graph[data_rows[0]['user_id']])
+if __name__ == '__main__':
+    #data_rows, user_to_mentions = read_dataset(dataset_filename, csv_filename)
+    data_rows, user_to_mentions, user_to_coordinates = read_dataset(dataset_filename, csv_filename)
+    print("the first data_rows is: ", data_rows[0])
+    print(user_to_mentions[data_rows[0]['user_id']])
+    mention_graph = build_mention_graph(user_to_mentions)
+    # print(mention_graph)
+    print("the mention graph is", mention_graph[data_rows[0]['user_id']])
