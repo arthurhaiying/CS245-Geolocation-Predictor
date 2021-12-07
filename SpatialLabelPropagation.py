@@ -9,7 +9,7 @@ from preprocess import mention_graph, data_rows, user_to_coordinates
 
 
 INFINITY = np.inf
-TRAINNING_SIZE = 0.8
+TRAINNING_SIZE = 0.9
 
 def distance(p1, p2):
     # compute great circle distance between two coordinates
