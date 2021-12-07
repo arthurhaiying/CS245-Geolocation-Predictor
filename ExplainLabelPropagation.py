@@ -1,7 +1,12 @@
 from csv import excel_tab
+from networkx.classes.function import neighbors
 import numpy as np
+from numpy.core.numeric import tensordot
 from sklearn.preprocessing import normalize
 
+from collections import defaultdict
+import networkx as nx
+import matplotlib.pyplot as plt
 
 def build_weight_matrix(mention_graph, node_to_idx):
 	N = len(node_to_idx)
@@ -29,7 +34,7 @@ def build_transition_matrix(W):
 
 class ExplainLabelPropagator:
 
-	def __init__(self, mention_graph, num_of_labels, train_user_dict, max_iter=10):
+	def __init__(self, mention_graph, num_of_labels, train_user_dict, max_iter=100):
 		self.mention_graph = mention_graph
 		self.nodes = mention_graph.keys()
 		# build node dictionary
@@ -70,6 +75,8 @@ class ExplainLabelPropagator:
 		return W
 
 	def labelprop(self, print_stats=False):
+		print("Start label prop...")
+		iter = 0
 		for iter in range(self.max_iter):
 			Y_prev = self.Y
 			Y_next = np.matmul(self.T, self.Y)
@@ -81,11 +88,14 @@ class ExplainLabelPropagator:
 			if print_stats:
 				test_users = set(self.nodes) - self.train_user_dict.keys()
 				print("Iteration {} ---------------------------------------------".format(iter))
-				self.explain_by_most_influential_user(test_users, print_stats=True)
+				Y_pred, W_pred = self.explain_by_most_influential_user(test_users)
+				self.print_stats(test_users, Y_pred, W_pred)
 
 			if np.allclose(Y_next, Y_prev):
 				print("Converges!")
 				break
+
+		print("Finish label prop after {} iterations.".format(iter))
 
 	def predict(self, test_users):
 		idx = [self.node_to_idx[node] for node in test_users]
@@ -99,19 +109,27 @@ class ExplainLabelPropagator:
 		W_pred = self.W[np.array(idx), Y_pred]
 		return Y_pred, W_pred
 	
-	def explain_by_most_influential_user(self, test_users, print_stats=False):
+	def explain_by_most_influential_user(self, test_users):
 		idx = [self.node_to_idx[node] for node in test_users]
 		Y_pred = np.argmax(self.Y, axis=-1)
 		Y_pred = Y_pred[np.array(idx)]
 		W_pred = self.W[np.array(idx), Y_pred]
 		W_pred = np.argmax(W_pred, axis=-1)
-		if print_stats:
-			for user, y, w in zip(test_users, Y_pred, W_pred):
-				print("User: {} Y_pred: {} Most influence: {}".format(user, y, w))
 		return Y_pred, W_pred
 
+	@staticmethod
+	def print_stats(test_users, Y_pred, W_pred):
+		#print("Start printing result...")
+		for user, y, w in zip(test_users, Y_pred, W_pred):
+			print("User: {} Y_pred: {} Most influence: {}".format(user, y, w))
 
-if __name__ == "__main__":
+
+
+###################################################################################################
+# Experiment
+####################################################################################
+
+def test_case1():
 	test_mention_graph = {
 		'usr0': {'usr1': 2, 'usr2': 3},
 		'usr1': {'usr0': 2, 'usr3': 4},
@@ -125,4 +143,78 @@ if __name__ == "__main__":
 	print("nodes: ", model.node_to_idx)
 	#print("Initial Y:", model.Y)
 	#print("Initial W:", model.W)
+	model.labelprop(print_stats=False)
+
+def test_experiment1():
+	# demo example from towards data science
+	edges = [
+		[1, 2],
+		[1, 5],
+		[2, 4],
+		[4, 5],
+		[3, 4],
+		[4, 7],
+		[5, 6],
+		[6, 7],
+		[7, 8],
+		[4, 9],
+		[9, 10],
+		[10, 12],
+		[10, 11],
+		[9, 13],
+		[9, 15],
+		[13, 15],
+		[15, 16],
+		[13, 14]
+	] 
+
+	# build mention graph
+	test_mention_graph = {}
+	nodes = list(range(1, 17))
+	for node in nodes:
+		test_mention_graph[node] = {}
+		
+	for edge in edges:
+		u, v = edge[0], edge[1]
+		#weight = # uniform weight
+		weight = np.random.randint(5)
+		test_mention_graph[u][v] = weight
+		test_mention_graph[v][u] = weight
+
+	# plot
+	G = nx.Graph()
+	G.add_node(1, label='LA')
+	G.add_node(8, label="LA")
+	G.add_node(14, label="SH")
+	G.add_node(16, label="SH")
+	for u, neighbors in test_mention_graph.items():
+		for v, weight in neighbors.items():
+			if u < v:
+				G.add_edge(u, v, weight=weight)
+
+	nx.draw_networkx(G, with_labels=True)
+	plt.show()
+
+	# add true labels
+	num_of_labels = 2 # 0 for LA and 1 for SH
+	train_user_dict = {1:0, 8:0, 14:1, 16:1}
+	test_users = list(set(nodes) - train_user_dict.keys())
+	model = ExplainLabelPropagator(test_mention_graph, num_of_labels, train_user_dict)
+	print("nodes: ", model.node_to_idx)
+	#print("Initial Y:", model.Y)
+	#print("Initial W:", model.W)
 	model.labelprop(print_stats=True)
+	print("Final result: ")
+	Y_pred, W_pred = model.explain(test_users)
+	W_pred = normalize(W_pred,axis=1,norm='l1')
+	#Y_pred, W_pred = model.explain_by_most_influential_user(test_users)
+	model.print_stats(test_users, Y_pred, W_pred)
+
+
+
+
+
+if __name__ == "__main__":
+	np.random.seed(1024)
+	#test_case1()
+	test_experiment1()
