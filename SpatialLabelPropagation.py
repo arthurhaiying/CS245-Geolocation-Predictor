@@ -189,7 +189,7 @@ def test_case1():
     #     json.dump(test_labels, outfile)
     # with open('slpmedian10iter.txt', 'w') as outfile:
     #     json.dump(test_labels, outfile)
-    with open('slpmedian8iter.txt', 'w') as outfile:
+    with open('slpmedian91_8iter.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
 
 
@@ -210,7 +210,7 @@ def test_case1():
     #     json.dump(test_labels, outfile)
     # with open('slpmean10iter.txt', 'w') as outfile:
     #     json.dump(test_labels, outfile)
-    with open('slpmean8iter.txt', 'w') as outfile:
+    with open('slpmean91_8iter.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
 
 
