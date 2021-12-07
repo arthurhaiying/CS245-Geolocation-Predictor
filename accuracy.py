@@ -91,19 +91,19 @@ def mse(text, dim):
 
 # if __name__ == '__main__':
 # abs
-mean_absolute = absolute("slpmean82_6iter.txt")
-median_absolute = absolute("slpmedian82_6iter.txt")
+mean_absolute = absolute("slpmean82_4iter.txt")
+median_absolute = absolute("slpmedian82_4iter.txt")
 print("mean absolute:", mean_absolute)
 print("median absolute", median_absolute)
 
 # mse 2D
-mean_mse_2d = mse("slpmean82_6iter.txt", 2)
-median_mse_2d = mse("slpmedian82_6iter.txt", 2)
+mean_mse_2d = mse("slpmean82_4iter.txt", 2)
+median_mse_2d = mse("slpmedian82_4iter.txt", 2)
 print("mean mse 2D:", mean_mse_2d)
 print("median mse 2D:", median_mse_2d)
 
 # mse 3D
-mean_mse_3d = mse("slpmean82_6iter.txt", 3)
-median_mse_3d = mse("slpmedian82_6iter.txt", 3)
+mean_mse_3d = mse("slpmean82_4iter.txt", 3)
+median_mse_3d = mse("slpmedian82_4iter.txt", 3)
 print("mean mse 3D:", mean_mse_3d)
 print("median mse 3D:", median_mse_3d)
