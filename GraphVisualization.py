@@ -7,8 +7,8 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import data
-from preprocess import mention_graph, data_rows
-from accuracy import mean_absolute, median_absolute, mean_mse_2d, median_mse_2d, mean_mse_3d, median_mse_3d
+# from preprocess import mention_graph, data_rows
+# from accuracy import mean_absolute, median_absolute, mean_mse_2d, median_mse_2d, mean_mse_3d, median_mse_3d
 import pandas as pd
 import random
 import warnings
@@ -101,9 +101,9 @@ plt.show()
 # %% 5 iterations
 n = 5
 X = ['50%', '60%', '70%', '80%', '90%']
-plt.figure(figsize=(25,25))
+# plt.figure(figsize=(20,25))
 # fig, axs(ax1, ax2) = plt.subplots(2)
-fig, axs = plt.subplots(2, figsize=(15,15))
+fig, axs = plt.subplots(1,2, figsize=(15,10))
 
 Y1 = [0.74688, 0.74633, 0.745, 0.74, 0.7556]
 Y2 = [0.4001556, 0.4118, 0.418747, 0.4098, 0.43725]
@@ -134,7 +134,8 @@ axs[1].plot(X, Y6, label='MSE(Cartesian)')
 # plt.xticks(X, ['50%', '60%', '70%', '80%', '90%'], fontsize = 15)
 axs[1].legend(loc="right", prop={'size': 10})
 axs[0].legend(loc="right", prop={'size': 10})
-plt.xlabel("train/test ratio", fontsize = 20)
+axs[0].set_xlabel("train/test ratio", fontsize = 20)
+axs[1].set_xlabel("train/test ratio", fontsize = 20)
 axs[1].set_ylabel("Accuracy", fontsize = 20)
 axs[0].set_ylabel("Accuracy", fontsize = 20)
 plt.suptitle("Accuracy VS different train/ test ratio with 5 iterations", fontsize = 20)
