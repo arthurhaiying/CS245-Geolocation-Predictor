@@ -9,7 +9,7 @@ from preprocess import mention_graph, data_rows, user_to_coordinates
 
 
 INFINITY = np.inf
-TRAINNING_SIZE = 0.8
+TRAINNING_SIZE = 0.9
 
 def distance(p1, p2):
     # compute great circle distance between two coordinates
@@ -189,7 +189,7 @@ def test_case1():
     #     json.dump(test_labels, outfile)
     # with open('slpmedian10iter.txt', 'w') as outfile:
     #     json.dump(test_labels, outfile)
-    with open('slpmedian8iter.txt', 'w') as outfile:
+    with open('slpmedian91_8iter.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
 
 
@@ -210,7 +210,7 @@ def test_case1():
     #     json.dump(test_labels, outfile)
     # with open('slpmean10iter.txt', 'w') as outfile:
     #     json.dump(test_labels, outfile)
-    with open('slpmean8iter.txt', 'w') as outfile:
+    with open('slpmean91_8iter.txt', 'w') as outfile:
         json.dump(test_labels, outfile)
 
 

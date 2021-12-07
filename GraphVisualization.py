@@ -95,4 +95,86 @@ plt.title("Accuracy with 8:2 train/ test ratio and 5 iterations")
 # plt.suptitle('Accuracy')
 plt.savefig("80per_5iter.png", dpi=1000)
 plt.show()
+
+
+
 # %%
+n = 3
+X = np.arange(n)+1
+plt.figure(figsize=(9,10))
+# fig, axs(ax1, ax2) = plt.subplots(2)
+fig, axs = plt.subplots(2)
+
+Y1 = [0.745, 0.8388, 0.82742]
+Y2 = [0.418747, 0.6005256, 0.558]
+Y3 = [0.74, 0.826, 0.817]
+Y4 = [0.4098, 0.596, 0.5517]
+Y5 = [0.7556, 0.8441215, 0.8361955]
+Y6 = [0.43725, 0.6155878, 0.5693527]
+
+axs[0].set_title('Median')
+axs[1].set_title('Mean')
+axs[0].scatter(X, Y1, s=10)
+axs[1].scatter(X, Y2, s=10)
+axs[0].scatter(X, Y3, s=10)
+axs[1].scatter(X, Y4, s=10)
+axs[0].scatter(X, Y5, s=10)
+axs[1].scatter(X, Y6, s=10)
+
+axs[0].label_outer()
+
+axs[0].plot(X, Y1, label='70% train data')
+axs[1].plot(X, Y2, label='70% train data')
+axs[0].plot(X, Y3, label='80% train data')
+axs[1].plot(X, Y4, label='80% train data')
+axs[0].plot(X, Y5, label='90% train data')
+axs[1].plot(X, Y6, label='90% train data')
+plt.xticks(X, ['Distance Difference', 'MSE(2D)', 'MSE(3D)'])
+axs[1].legend(loc="upper left")
+axs[0].legend(loc="upper left")
+plt.xlabel("Methods")
+axs[1].set_ylabel("Percentage")
+axs[0].set_ylabel("Percentage")
+plt.suptitle("Accuracy VS different train/ test ratio with 5 iterations")
+plt.savefig("per_comparison_5iter.png", dpi=1000)
+
+
+# %%
+n = 3
+X = np.arange(n)+1
+plt.figure(figsize=(9,10))
+# fig, axs(ax1, ax2) = plt.subplots(2)
+fig, axs = plt.subplots(2)
+
+Y1 = [0.74, 0.826, 0.817]
+Y2 = [0.4098, 0.596, 0.5517]
+Y3 = [0.75995, 0.83952, 0.83024]
+Y4 = [0.41313, 0.5915, 0.54907]
+Y5 = [0.7599469, 0.8395225, 0.8302387]
+Y6 = [0.4098, 0.59, 0.5491]
+
+axs[0].set_title('Median')
+axs[1].set_title('Mean')
+axs[0].scatter(X, Y1, s=10)
+axs[1].scatter(X, Y2, s=10)
+axs[0].scatter(X, Y3, s=10)
+axs[1].scatter(X, Y4, s=10)
+axs[0].scatter(X, Y5, s=10)
+axs[1].scatter(X, Y6, s=10)
+
+axs[0].label_outer()
+
+axs[0].plot(X, Y1, label='5 iterations')
+axs[1].plot(X, Y2, label='5 iterations')
+axs[0].plot(X, Y3, label='8 iterations')
+axs[1].plot(X, Y4, label='8 iterations')
+axs[0].plot(X, Y5, label='10 iterations')
+axs[1].plot(X, Y6, label='10 iterations')
+plt.xticks(X, ['Distance Difference', 'MSE(2D)', 'MSE(3D)'])
+axs[1].legend(loc="upper left")
+axs[0].legend(loc="upper left")
+plt.xlabel("Methods")
+axs[1].set_ylabel("Percentage")
+axs[0].set_ylabel("Percentage")
+plt.suptitle("Accuracy VS different iterations with 8:2 train/ test ratio")
+plt.savefig("iter_comparison_82.png", dpi=1000)
