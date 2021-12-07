@@ -17,7 +17,6 @@ def computer_transition_matrix(W):
     node i and node j
   """
   return normalize(W, axis=1, norm='l1')
-  #return np.nan_to_num(W/np.sum(W,axis=1,keepdims=True))
 
 def vanilla_label_propagation(Y, T, mask, max_iter, ground_truth, num_masked_out):
   """
@@ -45,16 +44,13 @@ def vanilla_label_propagation(Y, T, mask, max_iter, ground_truth, num_masked_out
     Y_cur = np.matmul(T, Y_cur)
     # row-normalize
     Y_cur = normalize(Y_cur, axis=1, norm='l1')
-    #Y_cur = Y_cur/np.sum(Y_cur,axis=1,keepdims=True)
-    #Y_cur = np.nan_to_num(Y_cur)
     # clamp the labeled data
     Y_cur = np.matmul(mask, Y_cur) + Y-np.matmul(mask, Y)
-    #print(Y_cur)
     # increase the counter
     counter += 1
     print("iteration: ", counter)
     
-    # temporary
+    # compute accuracy
     num_correct = num_masked_out - np.count_nonzero(np.argmax(ground_truth, axis = 1)- np.argmax(Y_cur, axis = 1))
     print("num_correct: ", num_correct)          
     print("accuray: ", num_correct/num_masked_out)
